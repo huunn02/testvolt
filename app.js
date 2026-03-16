@@ -162,6 +162,7 @@ const drawTile = (ctx, x, y, size, variant, highlight, energized, tilted) => {
   }
 };
 
+// 타일 타입별 커넥터 방향
 const CONNECTIONS = {
   empty: [],
   straightH: ["L", "R"],
@@ -189,6 +190,7 @@ const neighborIndex = (index, dir, gridSize) => {
   return null;
 };
 
+// Start에서 연결된 경로를 BFS로 따라가며 순서 반환
 const computeFlowOrder = (grid, startIndex, endIndex, gridSize) => {
   const visited = new Set();
   const order = [];
@@ -227,6 +229,7 @@ const ENERGY_PER_TILE = 3; // 타일 이동당 소모
 const ENERGY_PER_PLACEMENT = 2; // 배치 비용
 const ENERGY_PER_REFRESH = 3; // 트레이 새로고침 비용
 
+// 특정 인덱스의 커넥터 방향(시작/종료는 4방향 열림)
 const connectionsForIndex = (grid, index, startIndex, endIndex) => {
   if (index === startIndex || index === endIndex) {
     return ["U", "R", "D", "L"];
@@ -235,6 +238,7 @@ const connectionsForIndex = (grid, index, startIndex, endIndex) => {
   return CONNECTIONS[variant] || [];
 };
 
+// 인접 타일끼리 커넥터가 마주보면 연결됨으로 간주
 const computeConnectedTiles = (grid, startIndex, endIndex, gridSize) => {
   const connected = new Set();
   for (let index = 0; index < grid.length; index += 1) {
@@ -398,6 +402,7 @@ const gridSizeForDifficulty = (difficulty) => {
 };
 
 // 스테이지별 시드로 동일한 배치/시작/종료를 재현
+// 난이도/그리드/고정 타일/에너지까지 포함한 스테이지 레이아웃 생성
 const generateStageLayout = (stageNumber) => {
   const rng = mulberry32(stageNumber * 9973);
   const difficulty = stageDifficulty(stageNumber);
@@ -573,6 +578,7 @@ const VoltBridge = ({
     clearLongPress();
   };
 
+  // 롱프레스 삭제 (모바일)
   const handleLongPressStart = (event) => {
     if (flowing || gameOver) return;
     updateHoverFromClient(event.clientX, event.clientY);
@@ -697,6 +703,7 @@ const VoltBridge = ({
     clearLongPress();
   };
 
+  // 트레이 타일만 리롤
   const handleRefreshTiles = () => {
     setEnergy((prev) => Math.max(0, prev - ENERGY_PER_REFRESH));
     setPalette(randomPalette());
@@ -738,6 +745,7 @@ const VoltBridge = ({
     setEnergized(new Set());
   };
 
+  // 더블탭 삭제
   const handleDoubleTap = () => {
     const now = Date.now();
     const delta = now - lastTapRef.current;
@@ -747,6 +755,7 @@ const VoltBridge = ({
     }
   };
 
+  // GO: 고정 소모 + 이동 중 타일당 소모
   const handleGo = () => {
     if (flowing || gameOver) return;
     // 경로 계산 후 타일 이동당 에너지 소모
